@@ -1,6 +1,7 @@
 package me.annaisakova.blog.services.impl;
 
 import me.annaisakova.blog.entities.Post;
+import me.annaisakova.blog.entities.User;
 import me.annaisakova.blog.repositories.PostRepository;
 import me.annaisakova.blog.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,5 +54,15 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<Post> findByTitleAndDates(String title, Long start, Long end) {
         return postRepository.findAllByTitleAndCreatedAtBetween(title, start, end);
+    }
+
+    @Override
+    public List<Post> findAllByAuthor(User author) {
+        return postRepository.findAllByAuthor_Id(author.getId());
+    }
+
+    @Override
+    public List<Post> findByAuthorAndDates(User author, Long start, Long end) {
+        return postRepository.findAllByAuthor_IdAndCreatedAtBetween(author.getId(), start, end);
     }
 }

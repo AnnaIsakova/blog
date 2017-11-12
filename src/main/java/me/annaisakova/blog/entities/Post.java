@@ -4,11 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
 
-import static org.springframework.data.elasticsearch.annotations.FieldType.*;
 
 @Getter
 @Setter
@@ -20,17 +17,15 @@ public class Post {
     private String id;
     private String title;
     private String text;
-
-//    @Field(type = Date, format = DateFormat.custom, pattern = "dd-MM-yyyy")
+    private User author;
     private Long createdAt;
+    private Long updatedAt;
 
-    @Field(type = Date, format = DateFormat.custom, pattern = "dd-MM-yyyy")
-    private String updatedAt;
-
-    public Post(String id, String title, String text) {
+    public Post(String id, String title, String text, User author) {
         this.id = id;
         this.title = title;
         this.text = text;
+        this.author = author;
     }
 
     @Override

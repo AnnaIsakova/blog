@@ -3,6 +3,8 @@ package me.annaisakova.blog.services;
 
 import me.annaisakova.blog.BlogApplication;
 import me.annaisakova.blog.entities.Post;
+import me.annaisakova.blog.entities.User;
+import me.annaisakova.blog.entities.enums.UserRole;
 import me.annaisakova.blog.services.impl.PostServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +41,11 @@ public class PostServiceTest {
 
     @Test
     public void testSave(){
-        Post post = new Post("222", "Post title", "Post text. Very very long text.");
+        Post post = new Post(
+                "222",
+                "Post title",
+                "Post text. Very very long text.",
+                 new User("1001", "User1", "123", UserRole.USER));
         post.setCreatedAt(System.currentTimeMillis());
 
         Post testPost = postService.save(post);
@@ -48,11 +54,16 @@ public class PostServiceTest {
         assertEquals(post.getTitle(), testPost.getTitle());
         assertEquals(post.getText(), testPost.getText());
         assertEquals(post.getCreatedAt(), testPost.getCreatedAt());
+        assertEquals(post.getAuthor(), testPost.getAuthor());
     }
 
     @Test
     public void testDelete(){
-        Post post = new Post("111", "Post title", "Post text. Very very long text.");
+        Post post = new Post(
+                "111",
+                "Post title",
+                "Post text. Very very long text.",
+                new User("1001", "User1", "123", UserRole.USER));
         postService.save(post);
         postService.delete(post);
         Post testPost = postService.findOne(post.getId());
@@ -61,7 +72,10 @@ public class PostServiceTest {
 
     @Test
     public void testFindOne(){
-        Post post = new Post("111", "Post title", "Post text. Very very long text.");
+        Post post = new Post(
+                "111", "Post title",
+                "Post text. Very very long text.",
+                new User("1001", "User1", "123", UserRole.USER));
         postService.save(post);
         Post testPost = postService.findOne(post.getId());
 
@@ -69,15 +83,16 @@ public class PostServiceTest {
         assertEquals(post.getTitle(), testPost.getTitle());
         assertEquals(post.getText(), testPost.getText());
         assertEquals(post.getCreatedAt(), testPost.getCreatedAt());
+        assertEquals(post.getAuthor(), testPost.getAuthor());
     }
 
     @Test
     public void testFindAll(){
-        Post post1 = new Post("1", "Post title", "Post text. Very very long text.");
-        Post post2 = new Post("2", "Post title", "Post text. Very very long text.");
-        Post post3 = new Post("3", "Post title", "Post text. Very very long text.");
-        Post post4 = new Post("4", "Post title", "Post text. Very very long text.");
-        Post post5 = new Post("5", "Post title", "Post text. Very very long text.");
+        Post post1 = new Post("1", "Post title", "Post text. Very very long text.", new User());
+        Post post2 = new Post("2", "Post title", "Post text. Very very long text.", new User());
+        Post post3 = new Post("3", "Post title", "Post text. Very very long text.", new User());
+        Post post4 = new Post("4", "Post title", "Post text. Very very long text.", new User());
+        Post post5 = new Post("5", "Post title", "Post text. Very very long text.", new User());
         postService.save(post1);
         postService.save(post2);
         postService.save(post3);
@@ -95,11 +110,11 @@ public class PostServiceTest {
     @Test
     public void testFindByTitle(){
         List<Post> posts = new ArrayList<>();
-        posts.add(new Post("1", "Title", "Post text. Very very long text."));
-        posts.add(new Post("2", "Title", "Post text. Very very long text."));
-        posts.add(new Post("3", "Title", "Post text. Very very long text."));
-        posts.add(new Post("4", "not Title", "Post text. Very very long text."));
-        posts.add(new Post("5", "nottitle", "Post text. Very very long text."));
+        posts.add(new Post("1", "Title", "Post text. Very very long text.", new User()));
+        posts.add(new Post("2", "Title", "Post text. Very very long text.", new User()));
+        posts.add(new Post("3", "Title", "Post text. Very very long text.", new User()));
+        posts.add(new Post("4", "not Title", "Post text. Very very long text.", new User()));
+        posts.add(new Post("5", "nottitle", "Post text. Very very long text.", new User()));
 
         for (Post post:posts) {
             postService.save(post);
@@ -114,9 +129,9 @@ public class PostServiceTest {
     @Test
     public void testFindByDates(){
         Calendar calendar = new GregorianCalendar(2017, 10, 8);
-        Post post1 = new Post("1001", "Post 1", "Text text text");
+        Post post1 = new Post("1001", "Post 1", "Text text text", new User());
         post1.setCreatedAt(calendar.getTimeInMillis());
-        Post post2 = new Post("1002", "Post 2", "Text text text");
+        Post post2 = new Post("1002", "Post 2", "Text text text", new User());
         Date today = new Date(System.currentTimeMillis());
         post2.setCreatedAt(today.getTime());
         postService.save(post1);
@@ -134,8 +149,8 @@ public class PostServiceTest {
 
     @Test
     public void testFindByText(){
-        Post post1 = new Post("1001", "Post 1", "Text text text");
-        Post post2 = new Post("1002", "Post 2", "Hello, world!");
+        Post post1 = new Post("1001", "Post 1", "Text text text", new User());
+        Post post2 = new Post("1002", "Post 2", "Hello, world!", new User());
         postService.save(post1);
         postService.save(post2);
 
@@ -145,7 +160,7 @@ public class PostServiceTest {
 
     @Test
     public void testFindByTitleAndDates(){
-        Post post1 = new Post("1001", "Post 1", "Text text text");
+        Post post1 = new Post("1001", "Post 1", "Text text text", new User());
         Calendar calendar = new GregorianCalendar(2017, 10, 8);
         post1.setCreatedAt(calendar.getTimeInMillis());
         postService.save(post1);
@@ -157,6 +172,36 @@ public class PostServiceTest {
         assertEquals(0, posts.size());
 
         posts = postService.findByTitleAndDates("Post 1", System.currentTimeMillis(), System.currentTimeMillis() + 86399999);
+        assertEquals(0, posts.size());
+    }
+
+    @Test
+    public void testFindAllByAuthor(){
+        User author = new User("1001", "User1", "123", UserRole.USER);
+        Post post = new Post("222", "Post title", "Post text. Very very long text.", author);
+        postService.save(post);
+
+        List<Post> posts = postService.findAllByAuthor(author);
+        assertEquals(1, posts.size());
+        posts = postService.findAllByAuthor(new User("1002", "User2", "123", UserRole.USER));
+        assertEquals(0, posts.size());
+    }
+
+    @Test
+    public void testFindByAuthorAndDates(){
+        User author = new User("1001", "User1", "123", UserRole.USER);
+        Calendar calendar = new GregorianCalendar(2017, 10, 8);
+        Post post = new Post("222", "Post title", "Post text. Very very long text.", author);
+        post.setCreatedAt(calendar.getTimeInMillis());
+        postService.save(post);
+
+        List<Post> posts = postService.findByAuthorAndDates(author, calendar.getTimeInMillis(), calendar.getTimeInMillis() + 86399999);
+        assertEquals(1, posts.size());
+        posts = postService.findByAuthorAndDates(author, System.currentTimeMillis(), System.currentTimeMillis() + 86399999);
+        assertEquals(0, posts.size());
+        User notAuthor = new User();
+        notAuthor.setId("1002");
+        posts = postService.findByAuthorAndDates(notAuthor, calendar.getTimeInMillis(), calendar.getTimeInMillis() + 86399999);
         assertEquals(0, posts.size());
     }
 }
